@@ -16,10 +16,10 @@ from __future__ import annotations
 
 import argparse
 
-from google.ads.googleads.client import GoogleAdsClient
-
-from .client import load_client
 from .plan import CAMPAIGN_PLAN, SHARED_NEGATIVES
+
+# The google-ads SDK is imported lazily inside the live path only, so --dry-run
+# (and importing this module) works without the library installed.
 
 
 def _micros(dollars: float) -> int:
@@ -153,6 +153,8 @@ def build(customer_id: str, dry_run: bool = True) -> None:
                     print(f"      [{match:6}] {text}")
         print(f"\nShared negatives ({len(SHARED_NEGATIVES)}): {', '.join(SHARED_NEGATIVES[:8])} ...")
         return
+
+    from .client import load_client  # lazy: only the live path needs the SDK
 
     client = load_client()
     for camp in CAMPAIGN_PLAN:

@@ -9,6 +9,22 @@ Update final_url to the real landing pages before launch.
 _DAILY_URL = "https://moncls.com/"
 _CORPORATE_URL = "https://moncls.com/"
 
+# Geo targeting. Campaign A is local (radius around DC covering Baltimore + NoVA);
+# Campaign B is national US. Google geo target constant 2840 = United States.
+# Proximity radius is in miles from the DC city center.
+_DC_LOCAL_GEO = {
+    "type": "proximity",
+    "lat": 38.9072,
+    "lng": -77.0369,
+    "radius_miles": 50,  # covers DC, Baltimore (~40mi), and Northern Virginia
+}
+_NATIONAL_GEO = {
+    "type": "geo_targets",
+    "geo_target_constant_ids": ["2840"],  # United States
+}
+# English only, on both campaigns. Language constant 1000 = English.
+_LANGUAGE_IDS = ["1000"]
+
 SHARED_NEGATIVES = [
     # price / wrong-tier
     "cheap", "discount", "coupon", "cheapest", "affordable", "budget",
@@ -61,6 +77,8 @@ CAMPAIGN_PLAN = [
         "name": "Search | Daily Executive & Airport (DC Metro)",
         "daily_budget": 40.0,
         "final_url": _DAILY_URL,
+        "geo": _DC_LOCAL_GEO,
+        "language_ids": _LANGUAGE_IDS,
         "rsa_headlines": _DAILY_HEADLINES,
         "rsa_descriptions": _DAILY_DESCRIPTIONS,
         "ad_groups": [
@@ -102,6 +120,8 @@ CAMPAIGN_PLAN = [
         "name": "Search | Corporate & Event Ground Logistics (National)",
         "daily_budget": 60.0,
         "final_url": _CORPORATE_URL,
+        "geo": _NATIONAL_GEO,
+        "language_ids": _LANGUAGE_IDS,
         "rsa_headlines": _CORPORATE_HEADLINES,
         "rsa_descriptions": _CORPORATE_DESCRIPTIONS,
         "ad_groups": [

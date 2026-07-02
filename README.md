@@ -6,11 +6,15 @@ API.
 
 ## Status
 
-- [x] Reporting + auth scaffold (this repo)
-- [ ] **Basic Access** on the developer token (blocks all production calls — apply in API Center)
-- [ ] OAuth client + refresh token configured (`google-ads.yaml`)
+- [x] Reporting + auth scaffold
+- [x] New campaign fully built in code (2 campaigns, 7 ad groups, 29 keywords, 53 negatives, geo + language targeting, RSAs) — validated via dry-run + tests
+- [x] Preflight access diagnostic
+- [ ] **Basic Access** on the developer token — blocks all production calls (see ACCESS_SETUP.md)
+- [ ] Refresh token + customer ID in the environment
 - [ ] First live report pull
-- [ ] New campaign build
+- [ ] Deploy campaigns (paused) → review → enable
+
+See **ACCESS_SETUP.md** for the owner-only steps that unblock go-live.
 
 ## Setup
 

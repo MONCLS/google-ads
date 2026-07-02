@@ -98,6 +98,50 @@ def _add_keywords(
     return len(ops)
 
 
+def _add_geo_and_language(
+    client: GoogleAdsClient, customer_id: str, campaign_rn: str, geo: dict, language_ids: list
+) -> int:
+    """Attach location + language targeting so a campaign runs only where intended."""
+    svc = client.get_service("CampaignCriterionService")
+    ops = []
+
+    if geo.get("type") == "proximity":
+        op = client.get_type("CampaignCriterionOperation")
+        c = op.create
+        c.campaign = campaign_rn
+        c.proximity.radius = geo["radius_miles"]
+        c.proximity.radius_units = client.enums.ProximityRadiusUnitsEnum.MILES
+        c.proximity.geo_point.latitude_in_micro_degrees = int(geo["lat"] * 1_000_000)
+        c.proximity.geo_point.longitude_in_micro_degrees = int(geo["lng"] * 1_000_000)
+        ops.append(op)
+    elif geo.get("type") == "geo_targets":
+        for gid in geo["geo_target_constant_ids"]:
+            op = client.get_type("CampaignCriterionOperation")
+            c = op.create
+            c.campaign = campaign_rn
+            c.location.geo_target_constant = f"geoTargetConstants/{gid}"
+            ops.append(op)
+
+    for lid in language_ids:
+        op = client.get_type("CampaignCriterionOperation")
+        c = op.create
+        c.campaign = campaign_rn
+        c.language.language_constant = f"languageConstants/{lid}"
+        ops.append(op)
+
+    if ops:
+        svc.mutate_campaign_criteria(customer_id=customer_id, operations=ops)
+    return len(ops)
+
+
+def _geo_summary(geo: dict) -> str:
+    if geo.get("type") == "proximity":
+        return f"{geo['radius_miles']}mi radius around ({geo['lat']}, {geo['lng']})"
+    if geo.get("type") == "geo_targets":
+        return f"geo targets {geo['geo_target_constant_ids']}"
+    return "NONE (runs everywhere — check plan!)"
+
+
 def _add_campaign_negatives(
     client: GoogleAdsClient, customer_id: str, campaign_rn: str, negatives: list[str]
 ) -> int:
@@ -146,6 +190,7 @@ def build(customer_id: str, dry_run: bool = True) -> None:
         print("DRY RUN — nothing will be created.\n")
         for camp in CAMPAIGN_PLAN:
             print(f"Campaign: {camp['name']}  (${camp['daily_budget']}/day, PAUSED)")
+            print(f"  Geo: {_geo_summary(camp['geo'])} | Languages: {camp['language_ids']}")
             for ag in camp["ad_groups"]:
                 print(f"  Ad group: {ag['name']}  ({len(ag['keywords'])} keywords)")
                 for kw in ag["keywords"]:
@@ -160,8 +205,9 @@ def build(customer_id: str, dry_run: bool = True) -> None:
     for camp in CAMPAIGN_PLAN:
         budget_rn = _add_budget(client, customer_id, f"{camp['name']} budget", camp["daily_budget"])
         campaign_rn = _add_campaign(client, customer_id, camp["name"], budget_rn)
+        _add_geo_and_language(client, customer_id, campaign_rn, camp["geo"], camp["language_ids"])
         _add_campaign_negatives(client, customer_id, campaign_rn, SHARED_NEGATIVES)
-        print(f"Created (PAUSED): {camp['name']}")
+        print(f"Created (PAUSED): {camp['name']}  [{_geo_summary(camp['geo'])}]")
         for ag in camp["ad_groups"]:
             ag_rn = _add_ad_group(client, customer_id, campaign_rn, ag["name"], ag["cpc"])
             n = _add_keywords(client, customer_id, ag_rn, ag["keywords"])

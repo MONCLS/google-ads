@@ -1,0 +1,22 @@
+# Copy this file to `google-ads.yaml` (which is gitignored) and fill in your
+# real values. NEVER commit the filled-in version — it contains secrets.
+#
+# Where each value comes from:
+#   developer_token      -> Google Ads API Center (you have this; Test level for now)
+#   client_id / secret   -> Google Cloud Console > APIs & Services > Credentials
+#                           > OAuth 2.0 Client ID (Desktop app)   [setup step 2]
+#   refresh_token        -> run scripts/generate_refresh_token.py [setup step 3]
+#   login_customer_id    -> your Manager/MCC account ID, digits only, no dashes
+#                           (omit if you don't use a manager account)
+#   customer_id (in code) -> the account you operate on, digits only, no dashes
+
+developer_token: "INSERT_DEVELOPER_TOKEN"
+
+client_id: "INSERT_OAUTH_CLIENT_ID"
+client_secret: "INSERT_OAUTH_CLIENT_SECRET"
+refresh_token: "INSERT_REFRESH_TOKEN"
+
+# Optional: only if operating through a Manager (MCC) account.
+# login_customer_id: "1234567890"
+
+use_proto_plus: True

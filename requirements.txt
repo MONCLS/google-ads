@@ -1,0 +1,5 @@
+# Official Google Ads API client library
+google-ads==25.1.0
+
+# OAuth helper for minting a refresh token (step 3 of setup)
+google-auth-oauthlib==1.2.1
